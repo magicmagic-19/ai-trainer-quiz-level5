@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>迁移刷题记录</title>
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:#f8fafc;color:#0f172a}
+    main{max-width:760px;margin:40px auto;padding:24px}
+    .box{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:22px;box-shadow:0 10px 30px rgba(15,23,42,.08)}
+    h1{font-size:24px;margin:0 0 12px}
+    p{line-height:1.7;color:#475569}
+    button,a.btn{display:inline-flex;align-items:center;justify-content:center;margin:8px 8px 0 0;padding:10px 14px;border-radius:6px;border:1px solid #2563eb;background:#2563eb;color:#fff;text-decoration:none;font-size:15px;cursor:pointer}
+    button.secondary{background:#fff;color:#2563eb}
+    textarea{width:100%;min-height:140px;margin-top:14px;border:1px solid #cbd5e1;border-radius:6px;padding:10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
+    .ok{color:#047857}.bad{color:#b91c1c}.muted{color:#64748b}
+  </style>
+</head>
+<body>
+  <main>
+    <div class="box">
+      <h1>迁移旧刷题记录</h1>
+      <p id="status" class="muted">正在读取旧记录...</p>
+      <p>先双击桌面入口启动网页服务，再点下面的按钮。迁移会把旧的答题记录、错题、收藏和笔记带到固定网址里。</p>
+      <button id="openImport">迁移到固定网址</button>
+      <button id="copyData" class="secondary">复制记录备份</button>
+      <textarea id="raw" readonly placeholder="这里会显示读取到的记录备份"></textarea>
+    </div>
+  </main>
+  <script>
+    const raw = localStorage.getItem('qz') || '';
+    const statusEl = document.getElementById('status');
+    const rawEl = document.getElementById('raw');
+    const openBtn = document.getElementById('openImport');
+    const copyBtn = document.getElementById('copyData');
+
+    function summarize(text) {
+      try {
+        const data = JSON.parse(text);
+        const h = Array.isArray(data.h) ? data.h.length : 0;
+        const w = Array.isArray(data.w) ? data.w.length : 0;
+        const b = Array.isArray(data.b) ? data.b.length : 0;
+        const n = data.n && typeof data.n === 'object' ? Object.keys(data.n).length : 0;
+        return `已读取到旧记录：答题 ${h} 条，错题 ${w} 道，收藏 ${b} 道，笔记 ${n} 条。`;
+      } catch (error) {
+        return '读取到了 qz 记录，但格式不像有效的刷题记录。';
+      }
+    }
+
+    if (raw) {
+      statusEl.textContent = summarize(raw);
+      statusEl.className = 'ok';
+      rawEl.value = raw;
+    } else {
+      statusEl.textContent = '没有在这个 file:// 打开方式下找到旧记录。请确认这是从原来的 index.html 同一目录打开的迁移页。';
+      statusEl.className = 'bad';
+      openBtn.disabled = true;
+      copyBtn.disabled = true;
+    }
+
+    openBtn.addEventListener('click', () => {
+      const encoded = encodeURIComponent(raw);
+      location.href = `http://127.0.0.1:5177/import-records.html#qz=${encoded}`;
+    });
+
+    copyBtn.addEventListener('click', async () => {
+      rawEl.select();
+      try {
+        await navigator.clipboard.writeText(raw);
+        copyBtn.textContent = '已复制';
+      } catch (error) {
+        document.execCommand('copy');
+        copyBtn.textContent = '已复制';
+      }
+    });
+  </script>
+</body>
+</html>
