@@ -37,8 +37,11 @@ button.danger:hover{background:#fef2f2}
 .tfilt:hover:not(.act){background:#f1f5f9}
 </style>
 <style>.res div{white-space:pre-line;line-height:1.65}</style>
+<style>.file-warn{position:fixed;inset:0;background:rgba(15,23,42,.9);display:flex;align-items:center;justify-content:center;z-index:9999;backdrop-filter:blur(8px)}.file-warn>.card{max-width:420px;text-align:center;background:#fff;border-radius:12px;padding:36px 28px;box-shadow:0 20px 60px rgba(0,0,0,.3)}.file-warn h2{font-size:22px;margin:0 0 12px;color:#dc2626}.file-warn p{font-size:15px;color:#334155;line-height:1.7;margin:0 0 20px}.file-warn code{background:#f1f5f9;padding:3px 6px;border-radius:4px;font-size:13px;color:#2563eb}.file-warn .btn{display:inline-block;padding:10px 28px;background:#2563eb;color:#fff;border-radius:8px;font-size:15px;text-decoration:none;cursor:pointer;border:none}.file-warn .btn:hover{background:#1d4ed8}.hidden{display:none!important}</style>
 </head>
 <body>
+<div id="fileWarn" class="file-warn hidden"><div class="card"><h2>⚠️ 打开方式不对</h2><p>请<strong>双击文件夹里的 <code>start.command</code></strong> 来启动刷题。</p><p style="font-size:13px;color:#94a3b8">不要直接双击 index.html，否则刷题记录会丢失。</p><button class="btn" onclick="window.location.href='http://127.0.0.1:5177/'">尝试打开正确地址 →</button></div></div>
+<script>if(location.protocol==='file:'){document.getElementById('fileWarn').classList.remove('hidden');document.querySelector('.wrap').style.display='none'}</script>
 <div class="wrap">
   <div class="top">
     <div>
