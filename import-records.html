@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>导入刷题记录</title>
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:#f8fafc;color:#0f172a}
+    main{max-width:760px;margin:40px auto;padding:24px}
+    .box{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:22px;box-shadow:0 10px 30px rgba(15,23,42,.08)}
+    h1{font-size:24px;margin:0 0 12px}
+    p{line-height:1.7;color:#475569}
+    button,a.btn{display:inline-flex;align-items:center;justify-content:center;margin:8px 8px 0 0;padding:10px 14px;border-radius:6px;border:1px solid #2563eb;background:#2563eb;color:#fff;text-decoration:none;font-size:15px;cursor:pointer}
+    button.secondary{background:#fff;color:#2563eb}
+    button:disabled{opacity:.45;cursor:not-allowed}
+    .ok{color:#047857}.bad{color:#b91c1c}.muted{color:#64748b}
+    .summary{background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:14px;margin:10px 0}
+    .summary h3{margin:0 0 6px;font-size:15px;color:#047857}
+    .summary ul{margin:4px 0;padding-left:18px;font-size:14px;color:#334155}
+  </style>
+</head>
+<body>
+  <main>
+    <div class="box">
+      <h1>导入刷题记录</h1>
+      <p id="status" class="muted">正在读取传输数据...</p>
+      <div id="summary" style="display:none"></div>
+      <p id="note" style="display:none" class="muted">⚠️ 导入时会合并新旧记录，不会覆盖现有数据。重复的题目以旧记录为准。</p>
+      <button id="importBtn" style="display:none" onclick="doImport()">合并导入</button>
+      <button id="skipBtn" style="display:none" class="secondary" onclick="skip()">跳过，不导入</button>
+      <p><a href="/" class="btn secondary">打开刷题页</a></p>
+    </div>
+  </main>
+  <script>
+    const statusEl = document.getElementById('status');
+    const summaryEl = document.getElementById('summary');
+    const importBtn = document.getElementById('importBtn');
+    const skipBtn = document.getElementById('skipBtn');
+    const noteEl = document.getElementById('note');
+    let importData = null;
+
+    function summarize(data) {
+      const h = Array.isArray(data.h) ? data.h.length : 0;
+      const w = Array.isArray(data.w) ? data.w.length : 0;
+      const b = Array.isArray(data.b) ? data.b.length : 0;
+      const n = data.n && typeof data.n === 'object' ? Object.keys(data.n).length : 0;
+      return `<div class="summary"><h3>📦 待导入的旧记录</h3><ul><li>答题记录：${h} 条</li><li>错题：${w} 道</li><li>收藏：${b} 道</li><li>笔记：${n} 条</li></ul></div>`;
+    }
+
+    function skip() {
+      window.location.href = '/';
+    }
+
+    function doImport() {
+      if (!importData) return;
+      const current = JSON.parse(localStorage.getItem('qz') || '{}');
+      const merged = {
+        h: [...new Set([...(importData.h||[]), ...(current.h||[])])],
+        w: [...new Set([...(importData.w||[]), ...(current.w||[])])],
+        b: [...new Set([...(importData.b||[]), ...(current.b||[])])],
+        n: {...(importData.n||{}), ...(current.n||{})},
+        i: importData.i || current.i || 0,
+        br: importData.br || current.br || {round:2,r2:{},r3:{}},
+        m: [...new Set([...(importData.m||[]), ...(current.m||[])])]
+      };
+      localStorage.setItem('qz', JSON.stringify(merged));
+      statusEl.textContent = '✅ 导入成功！点击下方按钮进入刷题。';
+      statusEl.className = 'ok';
+      importBtn.style.display = 'none';
+      skipBtn.style.display = 'none';
+      noteEl.style.display = 'none';
+    }
+
+    try {
+      const hash = location.hash.slice(1);
+      const params = new URLSearchParams(hash);
+      const raw = params.get('qz');
+      if (!raw) {
+        statusEl.textContent = '❌ 没有收到数据，请重新从迁移页操作。';
+        statusEl.className = 'bad';
+      } else {
+        importData = JSON.parse(decodeURIComponent(raw));
+        statusEl.textContent = '找到旧记录，确认导入？';
+        statusEl.className = 'ok';
+        summaryEl.innerHTML = summarize(importData);
+        summaryEl.style.display = 'block';
+        importBtn.style.display = 'inline-flex';
+        skipBtn.style.display = 'inline-flex';
+        noteEl.style.display = 'block';
+      }
+    } catch (e) {
+      statusEl.textContent = '❌ 数据解析失败：' + e.message;
+      statusEl.className = 'bad';
+    }
+  </script>
+</body>
+</html>
