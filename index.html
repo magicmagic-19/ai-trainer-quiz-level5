@@ -82,9 +82,9 @@ button.danger:hover{background:#fef2f2}
     <button id="r2Btn" class="act" onclick="swRound(2)">二轮</button>
     <button id="r3Btn" onclick="swRound(3)">三轮</button>
     <span class="scope-ctl">
-      <button id="scopeAll" class="act" onclick="bkscope='all';ci=0;shufList=null;ui();rn()">全部</button>
-      <button id="scopePending" onclick="bkscope='pending';ci=0;shufList=null;ui();rn()">待复刷</button>
-      <button id="scopeMastered" onclick="bkscope='mastered';ci=0;shufList=null;ui();rn()">已掌握</button>
+      <button id="scopeAll" class="act" onclick="bkscope='all';ci=0;shufList=null;ubr();ui();rn()">全部</button>
+      <button id="scopePending" onclick="bkscope='pending';ci=0;shufList=null;ubr();ui();rn()">待复刷</button>
+      <button id="scopeMastered" onclick="bkscope='mastered';ci=0;shufList=null;ubr();ui();rn()">已掌握</button>
     </span>
   </div>
   <div class="layout">
@@ -156,8 +156,8 @@ if(wcnt)document.getElementById('qi').textContent+=' (错过'+wcnt+'次)';const 
 document.getElementById('q').textContent=q.q;document.getElementById('op').innerHTML=q.o.map((o,i)=>'<div class="op" data-i='+i+' onclick="sl('+i+')">'+o+'</div>').join('');const bb=document.getElementById('bkb');bb.textContent=(st.b||[]).includes(q.id)?'★ 已收藏':'☆ 收藏';bb.className='bkb'+((st.b||[]).includes(q.id)?' act':'')
 document.getElementById('res').className='res';document.getElementById('sb').style.display='block';document.getElementById('sb').disabled=true;document.getElementById('nx').style.display='none';ad=false;const nn=document.getElementById('ntg');const na=document.getElementById('nta');const nt=st.n||{};na.value=nt[q.id]||'';na.classList.remove('show');nn.className=nt[q.id]?'ntg has':'ntg';nn.textContent=nt[q.id]?'📝 已有笔记':'📝 笔记';
 const mtBtn=document.getElementById('mtBtn');if(mtBtn){mtBtn.style.display=m==='bookmark'?'inline-block':'none';mtBtn.textContent=(st.m||[]).includes(q.id)?'✅ 已掌握':'✅ 标为掌握';mtBtn.className=(st.m||[]).includes(q.id)?'bkb act':''}
-const rt2=document.getElementById('rt2Btn');if(rt2){const bk2=st.b||[];const m2=st.m||[];const inR2=bk2.includes(q.id)&&!m2.includes(q.id);rt2.style.display=(m!=='bookmark'&&!inR2)?'inline-block':'none'}
-const rt3=document.getElementById('rt3Btn');if(rt3){const bk3=st.b||[];const m3=st.m||[];const r2=(st.br&&st.br.r2)||{};const inR3=bk3.includes(q.id)&&r2[q.id]===false&&!m3.includes(q.id);rt3.style.display=(m!=='bookmark'&&!inR3)?'inline-block':'none'}
+const rt2=document.getElementById('rt2Btn');if(rt2){rt2.style.display=m!=='bookmark'?'inline-block':'none';const b2=st.b||[];const m2=st.m||[];if(b2.includes(q.id)&&!m2.includes(q.id)){rt2.textContent='📋 已在复刷列表';rt2.style.opacity='0.55'}else{rt2.textContent='📋 加入二轮';rt2.style.opacity='1'}}
+const rt3=document.getElementById('rt3Btn');if(rt3){if(m==='bookmark'){rt3.style.display=bkr===2?'inline-block':'none'}else{const b3=st.b||[];const m3=st.m||[];const r2=(st.br&&st.br.r2)||{};const inR3=b3.includes(q.id)&&r2[q.id]===false&&!m3.includes(q.id);rt3.style.display='inline-block';if(inR3){rt3.textContent='📋 已在三轮列表';rt3.style.opacity='0.55'}else{rt3.textContent='📋 加入三轮';rt3.style.opacity='1'}}
 document.getElementById('pr').textContent=(ci+1)+' / '+l.length;pa();document.getElementById('pv').disabled=ci===0;document.getElementById('nv').disabled=ci>=l.length-1}
 function sl(i){if(ad)return;const q=qs()[ci];if(q.t==='m'){document.querySelectorAll('.op')[i].classList.toggle('sel')}else{document.querySelectorAll('.op').forEach(o=>o.classList.remove('sel'));document.querySelectorAll('.op')[i].classList.add('sel')}
 document.getElementById('sb').disabled=false}
