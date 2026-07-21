@@ -14,7 +14,8 @@
     button.secondary{background:#fff;color:#2563eb}
     button:disabled{opacity:.45;cursor:not-allowed}
     .ok{color:#047857}.bad{color:#b91c1c}.muted{color:#64748b}
-    .summary{background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:14px;margin:10px 0}
+    textarea{width:100%;min-height:120px;margin-top:10px;border:1px solid #cbd5e1;border-radius:6px;padding:10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;resize:vertical}
+    .summary{background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:14px;margin:10px 0;display:none}
     .summary h3{margin:0 0 6px;font-size:15px;color:#047857}
     .summary ul{margin:4px 0;padding-left:18px;font-size:14px;color:#334155}
   </style>
@@ -23,32 +24,51 @@
   <main>
     <div class="box">
       <h1>导入刷题记录</h1>
-      <p id="status" class="muted">正在读取传输数据...</p>
-      <div id="summary" style="display:none"></div>
-      <p id="note" style="display:none" class="muted">⚠️ 导入时会合并新旧记录，不会覆盖现有数据。重复的题目以旧记录为准。</p>
+      <p>从迁移页复制了记录后，粘贴到下方框中。</p>
+      <textarea id="raw" placeholder="把迁移页复制的记录粘贴到这里..."></textarea>
+      <div id="summary" class="summary"></div>
+      <button id="parseBtn" onclick="parseData()">📋 读取粘贴的记录</button>
       <button id="importBtn" style="display:none" onclick="doImport()">合并导入</button>
-      <button id="skipBtn" style="display:none" class="secondary" onclick="skip()">跳过，不导入</button>
-      <p><a href="/" class="btn secondary">打开刷题页</a></p>
+      <button id="pasteBtn" class="secondary" onclick="pasteFromClipboard()">📎 从剪贴板粘贴</button>
+      <p><a href="/" class="btn secondary" style="margin-top:12px">打开刷题页</a></p>
     </div>
   </main>
   <script>
-    const statusEl = document.getElementById('status');
+    let importData = null;
+    const rawEl = document.getElementById('raw');
     const summaryEl = document.getElementById('summary');
     const importBtn = document.getElementById('importBtn');
-    const skipBtn = document.getElementById('skipBtn');
-    const noteEl = document.getElementById('note');
-    let importData = null;
 
-    function summarize(data) {
-      const h = Array.isArray(data.h) ? data.h.length : 0;
-      const w = Array.isArray(data.w) ? data.w.length : 0;
-      const b = Array.isArray(data.b) ? data.b.length : 0;
-      const n = data.n && typeof data.n === 'object' ? Object.keys(data.n).length : 0;
-      return `<div class="summary"><h3>📦 待导入的旧记录</h3><ul><li>答题记录：${h} 条</li><li>错题：${w} 道</li><li>收藏：${b} 道</li><li>笔记：${n} 条</li></ul></div>`;
+    async function pasteFromClipboard() {
+      try {
+        const text = await navigator.clipboard.readText();
+        rawEl.value = text;
+        parseData();
+      } catch(e) {
+        alert('无法访问剪贴板，请手动粘贴到上方框中。');
+      }
     }
 
-    function skip() {
-      window.location.href = '/';
+    function parseData() {
+      const raw = rawEl.value.trim();
+      if (!raw) return alert('请先粘贴记录数据。');
+      try {
+        const data = JSON.parse(raw);
+        if (!data.h && !data.w && !data.b && !data.n) {
+          alert('粘贴的内容不像有效的刷题记录，请确认从迁移页复制了正确的内容。');
+          return;
+        }
+        importData = data;
+        const h = Array.isArray(data.h) ? data.h.length : 0;
+        const w = Array.isArray(data.w) ? data.w.length : 0;
+        const b = Array.isArray(data.b) ? data.b.length : 0;
+        const n = data.n && typeof data.n === 'object' ? Object.keys(data.n).length : 0;
+        summaryEl.innerHTML = `<h3>📦 待导入的旧记录</h3><ul><li>答题记录：${h} 条</li><li>错题：${w} 道</li><li>收藏：${b} 道</li><li>笔记：${n} 条</li></ul>`;
+        summaryEl.style.display = 'block';
+        importBtn.style.display = 'inline-flex';
+      } catch(e) {
+        alert('数据格式错误：' + e.message);
+      }
     }
 
     function doImport() {
@@ -64,33 +84,13 @@
         m: [...new Set([...(importData.m||[]), ...(current.m||[])])]
       };
       localStorage.setItem('qz', JSON.stringify(merged));
-      statusEl.textContent = '✅ 导入成功！点击下方按钮进入刷题。';
-      statusEl.className = 'ok';
+      alert('✅ 导入成功！已合并 ' + merged.h.length + ' 条记录。点击「打开刷题页」开始刷题。');
       importBtn.style.display = 'none';
-      skipBtn.style.display = 'none';
-      noteEl.style.display = 'none';
     }
 
-    try {
-      const hash = location.hash.slice(1);
-      const params = new URLSearchParams(hash);
-      const raw = params.get('qz');
-      if (!raw) {
-        statusEl.textContent = '❌ 没有收到数据，请重新从迁移页操作。';
-        statusEl.className = 'bad';
-      } else {
-        importData = JSON.parse(decodeURIComponent(raw));
-        statusEl.textContent = '找到旧记录，确认导入？';
-        statusEl.className = 'ok';
-        summaryEl.innerHTML = summarize(importData);
-        summaryEl.style.display = 'block';
-        importBtn.style.display = 'inline-flex';
-        skipBtn.style.display = 'inline-flex';
-        noteEl.style.display = 'block';
-      }
-    } catch (e) {
-      statusEl.textContent = '❌ 数据解析失败：' + e.message;
-      statusEl.className = 'bad';
+    // 如果从迁移页跳转过来，自动尝试粘贴
+    if (document.referrer && document.referrer.includes('migrate-file-records')) {
+      setTimeout(pasteFromClipboard, 500);
     }
   </script>
 </body>

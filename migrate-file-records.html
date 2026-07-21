@@ -12,8 +12,12 @@
     p{line-height:1.7;color:#475569}
     button,a.btn{display:inline-flex;align-items:center;justify-content:center;margin:8px 8px 0 0;padding:10px 14px;border-radius:6px;border:1px solid #2563eb;background:#2563eb;color:#fff;text-decoration:none;font-size:15px;cursor:pointer}
     button.secondary{background:#fff;color:#2563eb}
-    textarea{width:100%;min-height:140px;margin-top:14px;border:1px solid #cbd5e1;border-radius:6px;padding:10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
-    .ok{color:#047857}.bad{color:#b91c1c}.muted{color:#64748b}
+    button:disabled{opacity:.45;cursor:not-allowed}
+    .ok{color:#047857}
+    .bad{color:#b91c1c}
+    .muted{color:#64748b}
+    .step{background:#eef2ff;border:1px solid #c7d2fe;border-radius:8px;padding:14px;margin:10px 0}
+    .step h3{margin:0 0 6px;font-size:15px}
   </style>
 </head>
 <body>
@@ -21,57 +25,78 @@
     <div class="box">
       <h1>迁移旧刷题记录</h1>
       <p id="status" class="muted">正在读取旧记录...</p>
-      <p>先双击桌面入口启动网页服务，再点下面的按钮。迁移会把旧的答题记录、错题、收藏和笔记带到固定网址里。</p>
-      <button id="openImport">迁移到固定网址</button>
-      <button id="copyData" class="secondary">复制记录备份</button>
-      <textarea id="raw" readonly placeholder="这里会显示读取到的记录备份"></textarea>
+      <div id="steps" style="display:none">
+        <div class="step">
+          <h3>步骤 1：复制记录</h3>
+          <button id="copyBtn">📋 复制记录到剪贴板</button>
+          <span id="copyOk" class="ok" style="display:none;margin-left:8px">✅ 已复制！</span>
+        </div>
+        <div class="step">
+          <h3>步骤 2：去导入</h3>
+          <p>点击下方按钮，在新页面粘贴并导入。</p>
+          <button id="goBtn">前往导入页 →</button>
+        </div>
+      </div>
+      <p class="muted" style="margin-top:16px">先双击 start.command 启动服务，再操作本页面。</p>
     </div>
   </main>
   <script>
     const raw = localStorage.getItem('qz') || '';
     const statusEl = document.getElementById('status');
-    const rawEl = document.getElementById('raw');
-    const openBtn = document.getElementById('openImport');
-    const copyBtn = document.getElementById('copyData');
+    const stepsEl = document.getElementById('steps');
+    const copyBtn = document.getElementById('copyBtn');
+    const copyOk = document.getElementById('copyOk');
+    const goBtn = document.getElementById('goBtn');
 
-    function summarize(text) {
+    if (raw) {
       try {
-        const data = JSON.parse(text);
+        const data = JSON.parse(raw);
         const h = Array.isArray(data.h) ? data.h.length : 0;
         const w = Array.isArray(data.w) ? data.w.length : 0;
         const b = Array.isArray(data.b) ? data.b.length : 0;
         const n = data.n && typeof data.n === 'object' ? Object.keys(data.n).length : 0;
-        return `已读取到旧记录：答题 ${h} 条，错题 ${w} 道，收藏 ${b} 道，笔记 ${n} 条。`;
-      } catch (error) {
-        return '读取到了 qz 记录，但格式不像有效的刷题记录。';
+        statusEl.textContent = `找到旧记录：答题 ${h} 条，错题 ${w} 道，收藏 ${b} 道，笔记 ${n} 条`;
+        statusEl.className = 'ok';
+        stepsEl.style.display = 'block';
+      } catch(e) {
+        statusEl.textContent = '读取到了记录但格式异常，仍可尝试迁移。';
+        statusEl.className = 'bad';
+        stepsEl.style.display = 'block';
       }
-    }
-
-    if (raw) {
-      statusEl.textContent = summarize(raw);
-      statusEl.className = 'ok';
-      rawEl.value = raw;
     } else {
-      statusEl.textContent = '没有在这个 file:// 打开方式下找到旧记录。请确认这是从原来的 index.html 同一目录打开的迁移页。';
+      statusEl.textContent = '没有在这个打开方式下找到旧记录。如果你之前是用 start.command 打开的，记录应该已经在正确位置了。';
       statusEl.className = 'bad';
-      openBtn.disabled = true;
-      copyBtn.disabled = true;
+      goBtn.textContent = '直接打开刷题页 →';
+      goBtn.onclick = function(){ location.href = 'http://127.0.0.1:5177/'; };
+      stepsEl.style.display = 'block';
+      copyBtn.style.display = 'none';
     }
-
-    openBtn.addEventListener('click', () => {
-      const encoded = encodeURIComponent(raw);
-      location.href = `http://127.0.0.1:5177/import-records.html#qz=${encoded}`;
-    });
 
     copyBtn.addEventListener('click', async () => {
-      rawEl.select();
       try {
         await navigator.clipboard.writeText(raw);
-        copyBtn.textContent = '已复制';
-      } catch (error) {
-        document.execCommand('copy');
-        copyBtn.textContent = '已复制';
+        copyOk.style.display = 'inline';
+        copyBtn.textContent = '✅ 已复制';
+      } catch(e) {
+        fallbackCopy(raw);
       }
+    });
+
+    function fallbackCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      copyOk.style.display = 'inline';
+      copyBtn.textContent = '✅ 已复制';
+    }
+
+    goBtn.addEventListener('click', () => {
+      location.href = 'http://127.0.0.1:5177/import-records.html';
     });
   </script>
 </body>
