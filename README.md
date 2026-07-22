@@ -16,9 +16,10 @@
 
 ### Windows
 
-1. 解压后，在文件夹地址栏输入 `cmd` 回车
-2. 在黑色窗口输入：`python -m http.server 5177`
-3. 浏览器打开 `http://127.0.0.1:5177/` ✅
+1. 解压后，双击文件夹里的 `start.bat`
+2. 浏览器会自动打开刷题页面 ✅
+
+> 如果提示未找到 Python，请先安装 [Python 3](https://www.python.org/downloads/)，安装时勾选「Add Python to PATH」
 
 > ⚠️ 每次刷题都要用 `http://127.0.0.1:5177/` 这个地址打开，不要直接双击 index.html，否则刷题记录会丢失。
 
