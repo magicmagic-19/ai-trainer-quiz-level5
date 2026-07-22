@@ -5,38 +5,54 @@ cd /d "%~dp0"
 set PORT=5177
 set URL=http://127.0.0.1:%PORT%/
 
-echo 人工智能训练师5级刷题网页
-echo 固定访问地址: %URL%
+echo.
+echo ========================================
+echo   人工智能训练师5级 · 理论刷题
+echo ========================================
+echo.
+echo   固定地址: %URL%
 echo.
 
-:: 检查端口是否已被占用
-netstat -ano | findstr ":%PORT% " | findstr "LISTENING" >nul
+:: 第一步：检查 Python（必须在打开浏览器之前）
+set "PYCMD="
+where python >nul 2>&1
+if %errorlevel% equ 0 set "PYCMD=python"
+
+if "%PYCMD%"=="" (
+    where python3 >nul 2>&1
+    if %errorlevel% equ 0 set "PYCMD=python3"
+)
+
+if "%PYCMD%"=="" (
+    echo   [X] 未检测到 Python
+    echo.
+    echo   请先安装 Python 3：
+    echo   https://www.python.org/downloads/
+    echo.
+    echo   !! 安装时务必勾选 "Add Python to PATH" !!
+    echo.
+    pause
+    exit /b 1
+)
+
+echo   [√] Python 已就绪 (%PYCMD%)
+echo.
+
+:: 第二步：检查端口是否已被占用
+netstat -ano 2>nul | findstr ":%PORT% " | findstr "LISTENING" >nul
 if %errorlevel% equ 0 (
-    echo 本地服务已经在运行，正在打开固定地址...
+    echo   本地服务已在运行，直接打开...
     start "" "%URL%"
-    echo 可以继续用这个窗口，或直接访问 %URL%
     pause
     exit /b 0
 )
 
-:: 打开浏览器
+:: 第三步：打开浏览器 + 启动服务
+echo   正在启动服务...
 start "" "%URL%"
-
-echo 服务启动中。刷题时请一直使用上面的固定地址。
-echo 关闭这个窗口后，网页服务会停止；下次双击本文件即可再次打开。
+echo.
+echo   此窗口保持打开，关闭后服务停止。
+echo   下次刷题直接双击 start.bat 即可。
 echo.
 
-:: 检查 Python 是否可用
-where python >nul 2>&1
-if %errorlevel% neq 0 (
-    where python3 >nul 2>&1
-    if %errorlevel% neq 0 (
-        echo [错误] 未找到 Python，请先安装 Python 3
-        echo 下载地址：https://www.python.org/downloads/
-        pause
-        exit /b 1
-    )
-    python3 -m http.server %PORT% --bind 127.0.0.1
-) else (
-    python -m http.server %PORT% --bind 127.0.0.1
-)
+%PYCMD% -m http.server %PORT% --bind 127.0.0.1
