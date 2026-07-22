@@ -1,4 +1,5 @@
 @echo off
+chcp 65001 >nul 2>&1
 title 人工智能训练师5级刷题
 cd /d "%~dp0"
 
