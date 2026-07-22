@@ -204,7 +204,7 @@ function togDrop(){document.getElementById('dropContent').classList.toggle('show
 function tType(ty){qtype=ty==='all'?null:ty;const labels={all:'全部',s:'单选',m:'多选',j:'判断'};document.querySelectorAll('.tfilt').forEach(b=>b.classList.toggle('act',b.textContent===labels[ty]));ci=0;shufList=null;if(m==='wrong'){wrTab=null;swr()}else rn()}
 document.addEventListener('click',function(e){const dd=document.getElementById('topicDropdown');if(dd&&!dd.contains(e.target))document.getElementById('dropContent').classList.remove('show')})
 function pa(){const l=qs();const bk=st.b||[];const mastered=st.m||[];const roundKey='r'+bkr;const rd=(st.br&&st.br[roundKey])||{};
-const d=new Map();st.h.forEach(x=>d.set(x.id,x.c));
+const d=new Map();st.h.forEach(x=>d.set(x.id,x.cr));
 const isBkMode=m==='bookmark';
 document.getElementById('pal').innerHTML=l.map((q,i)=>{let c='pi';if(i===ci)c+=' cur';
 else if(isBkMode&&rd.hasOwnProperty(String(q.id)))c+=rd[String(q.id)]?' r2ok':' r2no';
