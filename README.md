@@ -19,7 +19,13 @@
 1. 解压后，双击文件夹里的 `start.bat`
 2. 浏览器会自动打开刷题页面 ✅
 
-> 如果提示未找到 Python，请先安装 [Python 3](https://www.python.org/downloads/)，安装时勾选「Add Python to PATH」
+> **如果没反应或提示找不到 Python：**
+>
+> 1. 打开 https://www.python.org/downloads/
+> 2. 点击黄色大按钮下载安装包
+> 3. 双击安装包，**务必勾选 ☑「Add Python to PATH」**
+> 4. 点击 Install Now 完成安装
+> 5. 重新双击 `start.bat` 即可
 
 > ⚠️ 每次刷题都要用 `http://127.0.0.1:5177/` 这个地址打开，不要直接双击 index.html，否则刷题记录会丢失。
 

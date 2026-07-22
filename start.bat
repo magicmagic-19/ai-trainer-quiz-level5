@@ -26,10 +26,25 @@ if "%PYCMD%"=="" (
 if "%PYCMD%"=="" (
     echo   [X] 未检测到 Python
     echo.
-    echo   请先安装 Python 3：
-    echo   https://www.python.org/downloads/
+    echo   ═══════════════════════════════
+    echo   Python 3 安装指引（小白版）
+    echo   ═══════════════════════════════
     echo.
-    echo   !! 安装时务必勾选 "Add Python to PATH" !!
+    echo   1. 打开浏览器，访问：
+    echo      https://www.python.org/downloads/
+    echo.
+    echo   2. 点击黄色大按钮 「Download Python 3.x.x」
+    echo      （会自动识别你的 Windows 系统）
+    echo.
+    echo   3. 下载完成后，双击打开安装包
+    echo.
+    echo   4. ⚠️ 重要！安装界面底部
+    echo      务必勾选 ☑ 「Add Python to PATH」
+    echo      （勾上之后那一行字前面会有个对钩）
+    echo.
+    echo   5. 点击 「Install Now」开始安装
+    echo.
+    echo   6. 安装完成后，重新双击 start.bat 即可
     echo.
     pause
     exit /b 1
