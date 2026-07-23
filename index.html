@@ -41,7 +41,7 @@ button.danger:hover{background:#fef2f2}
 </head>
 <body>
 <div id="fileWarn" class="file-warn hidden"><div class="card"><h2>⚠️ 打开方式不对</h2><p>不要直接双击这个文件，刷题记录会丢失。</p><p style="font-size:16px;font-weight:600;color:#0f172a;background:#fef3c7;padding:12px;border-radius:8px">请退出此页面，然后<strong>双击 <code>start.command</code></strong></p><p style="font-size:13px;color:#94a3b8">每次刷题都通过双击 start.command 进入，<br>浏览器会自动打开正确的刷题页面。</p></div></div>
-<script>if(location.protocol==='file:'){document.getElementById('fileWarn').classList.remove('hidden');document.querySelector('.wrap').style.display='none'}</script>
+<script>if(location.protocol==='file:'){document.getElementById('fileWarn').classList.remove('hidden');var w=document.querySelector('.wrap');if(w)w.style.display='none'}</script>
 <div class="wrap">
   <div class="top">
     <div>
@@ -158,7 +158,7 @@ function ui(){}
 function rn(){const l=qs();if(!l.length){document.querySelector('.card').innerHTML='<p style="text-align:center;padding:40px;color:#94a3b8;">'+(m==='bookmark'&&bkscope==='pending'?'本轮已全部刷完 🎉':'暂无题目')+'</p>';return}
 if(ci>=l.length)ci=l.length-1;const q=l[ci];let prefix='';if(m==='bookmark'){const rnLabels={2:'二轮复刷',3:'三轮复刷'};prefix=(rnLabels[bkr]||'复刷')+' · '}else if(topicNames[m])prefix=topicNames[m]+' · ';
 document.getElementById('qi').textContent=prefix+'第 '+(ci+1)+' 题';
-const wcnt=st.h.filter(h=>h.id===q.id&&!h.c).length;
+const wcnt=st.h.filter(h=>h.id===q.id&&!h.cr).length;
 if(wcnt)document.getElementById('qi').textContent+=' (错过'+wcnt+'次)';const qt=document.getElementById('qt');if(q.t==='s'){qt.textContent='单选题';qt.className='qt s'}else if(q.t==='m'){qt.textContent='多选题';qt.className='qt m'}else{qt.textContent='判断题';qt.className='qt j'}
 document.getElementById('q').textContent=q.q;document.getElementById('op').innerHTML=q.o.map((o,i)=>'<div class="op" data-i='+i+' onclick="sl('+i+')">'+o+'</div>').join('');const bb=document.getElementById('bkb');bb.textContent=(st.b||[]).includes(q.id)?'★ 已收藏':'☆ 收藏';bb.className='bkb'+((st.b||[]).includes(q.id)?' act':'')
 document.getElementById('res').className='res';document.getElementById('sb').style.display='block';document.getElementById('sb').disabled=true;document.getElementById('nx').style.display='none';ad=false;const nn=document.getElementById('ntg');const na=document.getElementById('nta');const nt=st.n||{};na.value=nt[q.id]||'';na.classList.remove('show');nn.className=nt[q.id]?'ntg has':'ntg';nn.textContent=nt[q.id]?'📝 已有笔记':'📝 笔记';

@@ -29,6 +29,7 @@ set PYCMD=python
 
 :f_start
 echo [OK] Python 3 ready. Starting server...
+start "" "%PYCMD%" -m http.server %PORT% --bind 127.0.0.1
+timeout /t 1 /nobreak >nul
 start "" "%URL%"
-%PYCMD% -m http.server %PORT% --bind 127.0.0.1
 pause

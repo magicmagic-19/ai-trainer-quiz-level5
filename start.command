@@ -57,14 +57,18 @@ if command -v lsof >/dev/null 2>&1 && lsof -iTCP:${PORT} -sTCP:LISTEN -n -P >/de
   exit 0
 fi
 
-# 第三步：打开浏览器 + 启动服务
-if command -v open >/dev/null 2>&1; then
-  open "${URL}"
-fi
-
+# 第三步：先启动服务（后台），再打开浏览器，避免竞态条件导致空白页
 echo
 echo "  此窗口保持打开，关闭后服务停止。"
 echo "  下次刷题直接双击 start.command 即可。"
 echo
 
-$PYCMD -m http.server "${PORT}" --bind 127.0.0.1
+$PYCMD -m http.server "${PORT}" --bind 127.0.0.1 &
+SERVER_PID=$!
+sleep 0.5
+
+if command -v open >/dev/null 2>&1; then
+  open "${URL}"
+fi
+
+wait $SERVER_PID
