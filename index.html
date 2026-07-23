@@ -124,14 +124,10 @@ button.danger:hover{background:#fef2f2}
 </script>
 <script>
 
+let Q, st;
 try {
-let Q = JSON.parse(document.getElementById('q-data').textContent.trim());
-} catch(e) {
-  document.body.innerHTML = "<div style=padding:40px;text-align:center;font-family:sans-serif><h2>题库加载失败</h2><p style=color:red>" + e.message + "</p><p>请尝试用Chrome或Edge浏览器打开</p></div>";
-  throw e;
-}
-try {
-let st = JSON.parse(localStorage.getItem('qz')) || {h:[],w:[],b:[],i:0,br:{round:2,r2:{},r3:{}},m:[]};
+  Q = JSON.parse(document.getElementById('q-data').textContent.trim());
+  st = JSON.parse(localStorage.getItem('qz')) || {h:[],w:[],b:[],i:0,br:{round:2,r2:{},r3:{}},m:[]};
 } catch(e) {
   document.body.innerHTML = "<div style=padding:40px;text-align:center;font-family:sans-serif><h2>题库加载失败</h2><p style=color:red>" + e.message + "</p><p>请尝试用Chrome或Edge浏览器打开</p></div>";
   throw e;
